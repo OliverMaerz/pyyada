@@ -69,24 +69,31 @@ class MainPage(BlogHandler):
       self.write('Hello, Udacity!')
 
 
-##### user stuff
+# User related functions
+
 def make_salt(length = 5):
+    """Create salt used for password hashing."""
     return ''.join(random.choice(letters) for x in xrange(length))
 
 def make_pw_hash(name, pw, salt = None):
+    """Hash a password with sha256."""
     if not salt:
         salt = make_salt()
     h = hashlib.sha256(name + pw + salt).hexdigest()
     return '%s,%s' % (salt, h)
 
 def valid_pw(name, password, h):
+    """Verify a password hash to see if the entered password is ok."""
     salt = h.split(',')[0]
     return h == make_pw_hash(name, password, salt)
 
 def users_key(group = 'default'):
+    """Return unique key for users datastore entity"""
     return db.Key.from_path('users', group)
 
+
 class User(db.Model):
+    """User class used for login, register etc. """
     name = db.StringProperty(required = True)
     pw_hash = db.StringProperty(required = True)
     email = db.StringProperty()
@@ -115,7 +122,7 @@ class User(db.Model):
             return u
 
 
-##### blog stuff
+#Blog related functions
 
 def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
@@ -167,20 +174,6 @@ class NewPost(BlogHandler):
         else:
             error = "subject and content, please!"
             self.render("newpost.html", subject=subject, content=content, error=error)
-
-
-###### Unit 2 HW's
-class Rot13(BlogHandler):
-    def get(self):
-        self.render('rot13-form.html')
-
-    def post(self):
-        rot13 = ''
-        text = self.request.get('text')
-        if text:
-            rot13 = text.encode('rot13')
-
-        self.render('rot13-form.html', text = rot13)
 
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -236,6 +229,7 @@ class Unit2Signup(Signup):
     def done(self):
         self.redirect('/unit2/welcome?username=' + self.username)
 
+# Registration form
 class Register(Signup):
     def done(self):
         #make sure the user doesn't already exist
@@ -250,6 +244,7 @@ class Register(Signup):
             self.login(u)
             self.redirect('/blog')
 
+# Login form
 class Login(BlogHandler):
     def get(self):
         self.render('login-form.html')
@@ -286,8 +281,8 @@ class Welcome(BlogHandler):
         else:
             self.redirect('/unit2/signup')
 
+
 app = webapp2.WSGIApplication([('/', MainPage),
-                               ('/unit2/rot13', Rot13),
                                ('/unit2/signup', Unit2Signup),
                                ('/unit2/welcome', Welcome),
                                ('/blog/?', BlogFront),
