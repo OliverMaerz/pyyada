@@ -5,7 +5,8 @@
         <div class="col-md-4"></div>
         <div class="col-md-4">
             <form method="post">
-                <h2 class="form-signin-heading">New Post</h2>
+                <input type="hidden" name="post_id" value="{{post_id}}">
+                <h2 class="form-signin-heading">Edit Post</h2>
                 <label for="subject" class="sr-only">Subject</label>
                 <input id="subject" type="text" name="subject" class="form-control" placeholder="Subject" value="{{subject}}">
                 </label>
@@ -16,7 +17,8 @@
                     <div class="alert alert-danger">{{error}}</div>
                 {% endif %}
 
-                <button class="btn btn-lg btn-primary btn-block" type="submit">Submit Post</button>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Update Post</button>
+                <a class="btn btn-lg btn-primary btn-block" href="/blog/{{post_id}}" type="button">Cancel</a>
             </form>
         </div>
         <div class="col-md-4"></div>

@@ -1,70 +1,44 @@
-<!DOCTYPE html>
+{% extends "theme.html" %}
 
-<html>
-  <head>
-    <title>Sign Up</title>
-    <style type="text/css">
-      .label {text-align: right}
-      .error {color: red}
-    </style>
+{% block content %}
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <form class="form-signin" method="post">
+                <h2 class="form-signin-heading">Please register</h2>
+                {% if error %}
+                    <div class="alert alert-danger">{{error}}</div>
+                {% endif %}
+                <label for="username" class="sr-only">Username</label>
+                <input type="text" name="username" id="inputUsername" value="{{username}}" class="form-control" placeholder="Username" required autofocus value="{{username}}">
+                {% if error_username %}
+                    <div class="alert alert-danger">{{error_username}}</div>
+                {% endif %}
 
-  </head>
+                <label for="inputPassword" class="sr-only">Password</label>
+                <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                {% if error_password %}
+                    <div class="alert alert-danger">{{error_password}}</div>
+                {% endif %}
 
-  <body>
-    <h2>Signup</h2>
-    <form method="post">
-      <table>
-        <tr>
-          <td class="label">
-            Username
-          </td>
-          <td>
-            <input type="text" name="username" value="{{username}}">
-          </td>
-          <td class="error">
-            {{error_username}}
-          </td>
-        </tr>
+                <label for="inputVerify" class="sr-only">Verify Password</label>
+                <input type="password" name="verify" id="inputVerify" class="form-control" placeholder="Verify Password" required>
+                {% if error_verify %}
+                    <div class="alert alert-danger">{{error_verify}}</div>
+                {% endif %}
 
-        <tr>
-          <td class="label">
-            Password
-          </td>
-          <td>
-            <input type="password" name="password" value="">
-          </td>
-          <td class="error">
-            {{error_password}}
-          </td>
-        </tr>
+                <label for="email" class="sr-only">Email Optional</label>
+                <input type="text" name="email" id="email" class="form-control" placeholder="Email Optional" value="{{email}}">
+                {% if error_email %}
+                    <div class="alert alert-danger">{{error_email}}</div>
+                {% endif %}
 
-        <tr>
-          <td class="label">
-            Verify Password
-          </td>
-          <td>
-            <input type="password" name="verify" value="">
-          </td>
-          <td class="error">
-            {{error_verify}}
-          </td>
-        </tr>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+            </form>
+            <p>Or login <a href="/login">here</a>.</p>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
 
-        <tr>
-          <td class="label">
-            Email (optional)
-          </td>
-          <td>
-            <input type="text" name="email" value="{{email}}">
-          </td>
-          <td class="error">
-            {{error_email}}
-          </td>
-        </tr>
-      </table>
+{% endblock %}
 
-      <input type="submit">
-    </form>
-  </body>
-
-</html>

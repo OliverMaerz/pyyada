@@ -14,7 +14,7 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                autoescape = True)
 
-secret = 'fart'
+secret = 'sfrtsgh98'
 
 def render_str(template, **params):
     t = jinja_env.get_template(template)
@@ -128,22 +128,51 @@ def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
 
 class Post(db.Model):
+    """Post model holding data for blog entries"""
     subject = db.StringProperty(required = True)
     content = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
+    owner = db.ReferenceProperty(User)
+    likes = db.IntegerProperty(default=0)
 
     def render(self):
         self._render_text = self.content.replace('\n', '<br>')
         return render_str("post.html", p = self)
 
+class Comment(db.Model):
+    """Comment model holding data for blog post's comments"""
+    content = db.TextProperty(required = True)
+    created = db.DateTimeProperty(auto_now_add = True)
+    last_modified = db.DateTimeProperty(auto_now = True)
+    parent_post = db.ReferenceProperty(Post)
+
+    def render(self):
+        self._render_text = self.content.replace('\n', '<br>')
+        return render_str("comment.html", comment = self)
+
+class Like(db.Model):
+    """Likes model pointing to post and user for each like"""
+    post = db.ReferenceProperty(Post)
+    user = db.ReferenceProperty(User)
+
 class BlogFront(BlogHandler):
+    """Display the blog front page"""
     def get(self):
         posts = greetings = Post.all().order('-created')
         self.render('front.html', posts = posts)
 
+class BlogFrontOld(BlogHandler):
+    """Old blog url - redirect to / instead"""
+    def get(self):
+        self.redirect('/')
+
 class PostPage(BlogHandler):
+    """Display a single blog post"""
     def get(self, post_id):
+        PostPage.generate_page(post_id)
+
+    def generate_page (self, post_id, error_message = ''):
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         post = db.get(key)
 
@@ -153,7 +182,9 @@ class PostPage(BlogHandler):
 
         self.render("permalink.html", post = post)
 
+
 class NewPost(BlogHandler):
+    """Display the add post form if user is logged in or otherwise redirect to login."""
     def get(self):
         if self.user:
             self.render("newpost.html")
@@ -168,11 +199,11 @@ class NewPost(BlogHandler):
         content = self.request.get('content')
 
         if subject and content:
-            p = Post(parent = blog_key(), subject = subject, content = content)
+            p = Post(parent = blog_key(), subject = subject, content = content, owner = self.user)
             p.put()
             self.redirect('/blog/%s' % str(p.key().id()))
         else:
-            error = "subject and content, please!"
+            error = "Please enter subject and content!"
             self.render("newpost.html", subject=subject, content=content, error=error)
 
 
@@ -225,9 +256,7 @@ class Signup(BlogHandler):
     def done(self, *a, **kw):
         raise NotImplementedError
 
-class Unit2Signup(Signup):
-    def done(self):
-        self.redirect('/unit2/welcome?username=' + self.username)
+
 
 # Registration form
 class Register(Signup):
@@ -242,7 +271,7 @@ class Register(Signup):
             u.put()
 
             self.login(u)
-            self.redirect('/blog')
+            self.redirect('/welcome')
 
 # Login form
 class Login(BlogHandler):
@@ -256,7 +285,7 @@ class Login(BlogHandler):
         u = User.login(username, password)
         if u:
             self.login(u)
-            self.redirect('/blog')
+            self.redirect('/welcome')
         else:
             msg = 'Invalid login'
             self.render('login-form.html', error = msg)
@@ -264,33 +293,73 @@ class Login(BlogHandler):
 class Logout(BlogHandler):
     def get(self):
         self.logout()
-        self.redirect('/blog')
+        self.redirect('/signup')
 
-class Unit3Welcome(BlogHandler):
+
+class Welcome(BlogHandler):
+    """Show welcome template if user is logged in; otherwise redirect to signup"""
     def get(self):
         if self.user:
             self.render('welcome.html', username = self.user.name)
         else:
             self.redirect('/signup')
 
-class Welcome(BlogHandler):
-    def get(self):
-        username = self.request.get('username')
-        if valid_username(username):
-            self.render('welcome.html', username = username)
+class EditPost(BlogHandler):
+    """Display form to edit post"""
+    def get(self, post_id):
+        if self.user:
+            self.render('editpost.html')
         else:
-            self.redirect('/unit2/signup')
+            self.redirect('/login')
+
+class Comment(BlogHandler):
+    """Display form to add a comment to a post"""
+    def get(self, post_id):
+        if self.user:
+            self.render('comment.html', post_id = post_id)
+        else:
+            self.redirect('/login')
+
+class LikePost(BlogHandler):
+    """Like a post. Increases like counter."""
+    def get(self, post_id):
+        if self.user:
+            key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+            post = db.get(key)
+            # check if user is not onwer of post
+            if self.user.key() !=  post.owner.key():
+                # check if user has not already liked the post
+                likes = Like.all().filter('user =', self.user.key()).filter('post =', post.key())
+                if not likes.get():
+                    # now store the user and post in the like table
+                    like = Like(post = post, user = self.user)
+                    like.put()
+                    # ... and increase the number of likes in the post table
+                    post.likes = post.likes + 1;
+                    post.put()
+                else:
+                    error = 'You have already liked this post in the past.'
+            else:
+                error = 'You can not like your own post.'
+
+            self.redirect('/blog/%s' % post_id)
+
+        else:
+            self.redirect('/login')
 
 
-app = webapp2.WSGIApplication([('/', MainPage),
-                               ('/unit2/signup', Unit2Signup),
-                               ('/unit2/welcome', Welcome),
-                               ('/blog/?', BlogFront),
+
+# define all the url's and what classe's get or post method to call
+app = webapp2.WSGIApplication([('/', BlogFront),
+                               ('/welcome', Welcome),
+                               ('/blog/?', BlogFrontOld),
                                ('/blog/([0-9]+)', PostPage),
                                ('/blog/newpost', NewPost),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
-                               ('/unit3/welcome', Unit3Welcome),
+                               ('/edit/([0-9]+)', EditPost),
+                               ('/like/([0-9]+)', LikePost),
+                               ('/comment/([0-9]+)', Comment)
                                ],
                               debug=True)

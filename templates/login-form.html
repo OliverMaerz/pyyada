@@ -1,44 +1,26 @@
-<!DOCTYPE html>
 
-<html>
-  <head>
-    <title>Login</title>
-    <style type="text/css">
-      .label {text-align: right}
-      .error {color: red}
-    </style>
+{% extends "theme.html" %}
 
-  </head>
+{% block content %}
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <form class="form-signin" method="post">
+                <h2 class="form-signin-heading">Please sign in</h2>
+                {% if error %}
+                    <div class="alert alert-danger">{{error}}</div>
+                {% endif %}
+                <label for="username" class="sr-only">Username</label>
+                <input type="text" name="username" id="inputUsername" value="{{username}}" class="form-control" placeholder="Username" required autofocus>
+                <label for="inputPassword" class="sr-only">Password</label>
+                <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+            </form>
+            <p>Or register <a href="/signup">here</a>.</p>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
 
-  <body>
-    <h2>Login</h2>
-    <form method="post">
-      <table>
-        <tr>
-          <td class="label">
-            Username
-          </td>
-          <td>
-            <input type="text" name="username" value="{{username}}">
-          </td>
-        </tr>
+{% endblock %}
 
-        <tr>
-          <td class="label">
-            Password
-          </td>
-          <td>
-            <input type="password" name="password" value="">
-          </td>
-        </tr>
-      </table>
 
-      <div class="error">
-        {{error}}
-      </div>
-
-      <input type="submit">
-    </form>
-  </body>
-
-</html>
