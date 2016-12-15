@@ -14,7 +14,7 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
                                autoescape=True)
 
-secret = 'sfrtsgh98'
+secret = 'Uo7KwYaSbB46zpl4GQ5wsaqSasIfHoRt'
 
 
 def render_str(template, **params):
@@ -138,7 +138,7 @@ class Post(db.Model):
     content = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
     last_modified = db.DateTimeProperty(auto_now=True)
-    owner = db.ReferenceProperty(User)
+    owner = db.ReferenceProperty(User, required=True)
     likes = db.IntegerProperty(default=0)
 
     def render(self):
@@ -155,7 +155,7 @@ class Comment(db.Model):
     content = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
     last_modified = db.DateTimeProperty(auto_now=True)
-    owner = db.ReferenceProperty(User)
+    owner = db.ReferenceProperty(User, required=True)
 
     def render(self, loggedin):
         self._render_text = self.content.replace('\n', '<br>')
@@ -216,7 +216,7 @@ class NewPost(BlogHandler):
 
     def post(self):
         if not self.user:
-            self.redirect('/blog')
+            return self.redirect('/login')
 
         subject = self.request.get('subject')
         content = self.request.get('content')
@@ -369,7 +369,7 @@ class EditPost(BlogHandler):
     # post with page details submitted ...
     def post(self):
         if not self.user:
-            self.redirect('/login')
+            return self.redirect('/login')
 
         post_id = self.request.get('post_id')
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
@@ -431,13 +431,13 @@ class CommentPage(BlogHandler):
        via post"""
     def get(self, post_id):
         if not self.user:
-            self.redirect('/login')
+            return self.redirect('/login')
 
-        self.render('comment.html', post_id=post_id)
+        self.render('comment.html', post_id=post_id, title='Add')
 
     def post(self, post_id):
         if not self.user:
-            self.redirect('/login')
+            return self.redirect('/login')
 
         content = self.request.get('content')
         # post_id = self.request.get('post_id')
@@ -452,9 +452,68 @@ class CommentPage(BlogHandler):
             self.render("comment.html", content=content, error=error,
                         post_id=post_id)
 
+class EditComment(BlogHandler):
+    """Display form to edit a comment"""
+    def get(self, post_id, comment_id):
+        if self.user:
+            key = db.Key.from_path('Comment', int(comment_id),
+                                   parent=db.Key.from_path('Post',
+                                                           int(post_id),
+                                                           parent=blog_key()))
+            comment = db.get(key)
+
+            if not comment:
+                self.error(404)
+                return
+
+            # check if user is author
+            if self.user.key() != comment.owner.key():
+                error = 'You can only edit your own comments.'
+                self.render('error.html', error=error,
+                            url='/blog/%s' % post_id)
+                return
+
+            self.render('comment.html', title='Edit', action='/editcomment',
+                        content=comment.content, post_id=post_id,
+                        comment_id=comment_id)
+        else:
+            self.redirect('/login')
+
+    # comment with details submitted ...
+    def post(self):
+        if not self.user:
+            return self.redirect('/login')
+
+        post_id = self.request.get('post_id')
+        comment_id = self.request.get('comment_id')
+        key = db.Key.from_path('Comment', int(comment_id),
+                               parent=db.Key.from_path('Post',
+                                                       int(post_id),
+                                                       parent=blog_key()))
+        comment = db.get(key)
+
+        # check if user is author
+        if self.user.key() != comment.owner.key():
+            error = 'You can only edit your own comments.'
+            self.render('error.html', error=error, url='/blog/%s' % post_id)
+            return
+
+        content = self.request.get('content')
+
+        if content:
+            comment.content = content
+            comment.put()
+            self.redirect('/blog/%s' % post_id)
+        else:
+            error = "Please enter content."
+            self.render("comment.html", title='Edit', action='/editcomment',
+                        content=content, post_id=post_id,
+                        comment_id = comment_id, error=error)
+
+
 
 class DeleteComment(BlogHandler):
-    """Delete a post"""
+    """Delete a comment"""
     def get(self, post_id, comment_id):
         if self.user:
             key = db.Key.from_path('Comment', int(comment_id),
@@ -535,6 +594,10 @@ app = webapp2.WSGIApplication([('/', BlogFront),
                                ('/comment/([0-9]+)', CommentPage),
                                ('/delete/([0-9]+)', DeletePost),
                                ('/deletecomment/([0-9]+)/([0-9]+)',
-                                DeleteComment)
+                                DeleteComment),
+                               ('/editcomment/([0-9]+)/([0-9]+)',
+                                EditComment),
+                               ('/editcomment',
+                                EditComment)
                                ],
                               debug=True)

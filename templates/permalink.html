@@ -3,7 +3,7 @@
 {% block content %}
     {{post.render() | safe}}
     {% if loggedin %}
-        <div class="post-links">[ <a href="/like/{{post.key().id()}}">Like this post</a> | <a href="/comment/{{post.key().id()}}">Comment</a>  | <a href="/edit/{{post.key().id()}}">Edit this post</a> | <a href="/delete/{{post.key().id()}}">Delete this post</a> ]</div>
+        <div class="post-links">[ <a href="/like/{{post.key().id()}}">Like this post</a> | <a href="/comment/{{post.key().id()}}">Add comment</a>  | <a href="/edit/{{post.key().id()}}">Edit this post</a> | <a href="/delete/{{post.key().id()}}">Delete this post</a> ]</div>
     {% else %}
         <div class="post-links">[ <a href="/login">Log in to like this post or to comment</a> ]</div>
     {% endif %}

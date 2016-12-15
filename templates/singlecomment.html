@@ -4,7 +4,7 @@
       <div class="panel-body">
         {{ content }}
         {% if loggedin %}
-            [<a href="/deletecomment/{{post_id}}/{{comment_id}}">delete comment</a>]
+            [<a href="/deletecomment/{{post_id}}/{{comment_id}}">Delete this comment</a> | <a href="/editcomment/{{post_id}}/{{comment_id}}">Edit this comment</a> ]
         {% endif %}
       </div>
     </div>
