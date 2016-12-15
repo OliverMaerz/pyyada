@@ -1,7 +1,7 @@
 # pyyada
 Simple blog written in python for Udacity class
 
-This software requires the Google Cloud SDK for Python. If you do not have it installed already installed then download and install if from https://cloud.google.com/appengine/docs/python/download.
+This software requires the Google Cloud SDK for Python. If you do not have it already installed then download and install from https://cloud.google.com/appengine/docs/python/download.
 
 To run the blog on your local machine you need to first clone the repository with `git clone https://github.com/OliverMaerz/pyyada.git`. Then change into the newly created `pyyada` directory. In the `pyyada` directory run `dev_appserver.py` to start the local web server. You can then access the site at http://localhost:8080. In case you have changed the port then replace 8080 with the port you have configured. 
 
