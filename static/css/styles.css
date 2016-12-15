@@ -5,14 +5,14 @@ video {
     max-width: 100%
 }
 
-html *
-{
-   color: #2d3c49;
+html * {
    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+   font-size: 16px;
 }
 
-.omt-header {
+.omt-header h1 {
     font-family: "Orbitron", sans-serif;
+    font-size: 32px;
     color: #000;
 }
 
@@ -24,7 +24,11 @@ html *
 
 .jumbotron {
     padding: 20px 40px 20px !important;
-    margin-bottom: 0px !important;
+    margin-bottom: 0px;
+}
+
+.jumbotron p {
+    font-size: 18px;
 }
 
 .post-links {

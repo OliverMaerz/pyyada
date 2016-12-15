@@ -1,0 +1,11 @@
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="panel panel-default col-md-10">
+      <div class="panel-body">
+        {{ content }}
+        {% if loggedin %}
+            [<a href="/deletecomment/{{post_id}}/{{comment_id}}">delete comment</a>]
+        {% endif %}
+      </div>
+    </div>
+</div>

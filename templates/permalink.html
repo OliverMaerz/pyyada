@@ -1,5 +1,11 @@
 {% extends "theme.html" %}
 
 {% block content %}
-  {{post.render() | safe}}
+    {{post.render() | safe}}
+    {% if loggedin %}
+        <div class="post-links">[ <a href="/like/{{post.key().id()}}">Like this post</a> | <a href="/comment/{{post.key().id()}}">Comment</a>  | <a href="/edit/{{post.key().id()}}">Edit this post</a> | <a href="/delete/{{post.key().id()}}">Delete this post</a> ]</div>
+    {% endif %}
+    {% for c in comments %}
+        {{ c.render(loggedin) | safe }}
+    {% endfor %}
 {% endblock %}

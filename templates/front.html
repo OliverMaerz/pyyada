@@ -4,6 +4,6 @@
 
   {% for p in posts %}
     {{ p.render() | safe }}
+    <p><a href="/blog/{{p.key().id()}}">View Post, Comments and Features for this Post (Like, Edit, Comment, ...)</a></p>
   {% endfor %}
-
 {% endblock %}

@@ -2,25 +2,25 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-4"></div>
-        <div class="col-md-4">
-            <form method="post">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <form method="post" action="{{action}}">
                 <input type="hidden" name="post_id" value="{{post_id}}">
-                <h2 class="form-signin-heading">Edit Post</h2>
+                <h2 class="form-signin-heading">{{ title }} Post</h2>
                 <label for="subject" class="sr-only">Subject</label>
                 <input id="subject" type="text" name="subject" class="form-control" placeholder="Subject" value="{{subject}}">
                 </label>
 
                 <label for="content" class="sr-only">Blog</label>
-                <textarea id="content" rows="5" name="content" class="form-control" placeholder="Type content here ...">{{content}}</textarea>
+                <textarea id="content" rows="10" name="content" class="form-control" placeholder="Type content here ...">{{content}}</textarea>
                 {% if error %}
                     <div class="alert alert-danger">{{error}}</div>
                 {% endif %}
 
-                <button class="btn btn-lg btn-primary btn-block" type="submit">Update Post</button>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
                 <a class="btn btn-lg btn-primary btn-block" href="/blog/{{post_id}}" type="button">Cancel</a>
             </form>
         </div>
-        <div class="col-md-4"></div>
+        <div class="col-md-2"></div>
     </div>
 {% endblock %}
