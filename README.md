@@ -8,9 +8,10 @@ To run the blog on your local machine you need to first clone the repository wit
 To run the blog on the Google App Engine you need to additionally setup a project in your Google App Engine account. Once the project is setup make sure you are in the  `pyyada` directory and then run `gcloud app deploy --project your-project` (replace your-project with the name of the project you have configured in the Google App Engine). 
 
 
-TODO Work on usability (show edit, delete etc. only if users is owner of post etc.)
-TODO Add WYSIWYG editor 
+TODO 
+- [ ] Work on usability (show edit, delete etc. only if users is owner of post etc.)
+- [ ] Add WYSIWYG editor 
 
-CHANGELOG
-  Intitial version
+CHANGELOG 
+ - Intitial version
   
