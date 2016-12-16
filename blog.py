@@ -3,11 +3,9 @@ import re
 import random
 import hashlib
 import hmac
-from string import letters
-
 import webapp2
 import jinja2
-
+from string import letters
 from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
